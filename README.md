@@ -188,5 +188,5 @@ Top5Games.tpl (NOTE: `format_seconds` is a conceptual modifier and will throw an
 			</li>
 		{% endforeach %}
 	</ul>
-{% else %}
+{% endif %}
 ```
