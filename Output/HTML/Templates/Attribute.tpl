@@ -1,0 +1,1 @@
+{% if key|length > 0 %}{{key}}{% if value|length > 0 %}="{{value}}"{% endif %}{% endif %}

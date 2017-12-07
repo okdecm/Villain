@@ -23,6 +23,7 @@
 	{
 		public static function Evaluate($nodes, $context = array())
 		{
+			// TODO: Fix the if true if false stuff in the container template, doesn't display an error
 			//die("<pre>" . print_r($nodes, true));
 
 			$data = "";
@@ -120,11 +121,13 @@
 
 							case "length":
 							case "count":
-								$variable = count($variable);
-
-								if($node->Expression == "language")
+								if(is_string($variable))
 								{
-									die(var_dump($variable));
+									$variable = strlen($variable);
+								}
+								else
+								{
+									$variable = count($variable);
 								}
 							break;
 
@@ -157,6 +160,11 @@
 
 				case $node instanceof ElseIfNode:
 				case $node instanceof IfNode:
+					if($node instanceof IfNode)
+					{
+						$conditionMet = false;
+					}
+
 					if($conditionMet) break;
 
 					$value = false;
@@ -220,8 +228,8 @@
 						}
 					}
 
-					die(var_dump($node));
-					die(var_dump($left, $right));
+					//die(var_dump($node));
+					//die(var_dump($left, $right, $value));
 
 					if($value)
 					{

@@ -5,7 +5,7 @@
 		{{head}}
 	</head>
 
-	<body{% if body_class|length > 0 %} {{body_class}}{% endif %}>
+	<body{% if body_class|length > 0 %} class="{{body_class}}"{% endif %}>
 		{{body}}
 	</body>
 </html>

@@ -31,7 +31,7 @@
 		private static function GetBooleanPattern($name = "Boolean")
 		{
 
-			return "(?i<" . $name . ">true|false)";
+			return "(?<" . $name . ">true|false)";
 		}
 
 		private static function GetNumericalPattern($name = "Digit")
@@ -50,9 +50,72 @@
 		}
 
 		// NOTE: Ugly args, but it'll do
-		private static function GetConditionalPattern($logical = "Logical", $leftNegative = "LeftNegative", $leftNumeric = "LeftNumeric", $leftString = "LeftString", $leftExpression = "LeftExpression", $leftModifier = "LeftModifier", $comparison = "Comparison", $rightNegative = "RightNegative", $rightNumeric = "RightNumeric", $rightString = "RightString", $rightExpression = "RightExpression", $rightModifier = "RightModifier")
+		private static function GetConditionalPattern($options = array())
 		{
-			return "[\s]*(?<" . $logical . ">&&|\|\|)?[\s]*" . self::GetNegativePattern($leftNegative) . "(?:" . self::GetNumericalPattern($leftNumeric) . "|" . self::GetStringPattern($leftString) . "|" . self::GetVariablePattern($leftExpression, $leftModifier) . ")(?:[\s]*(?<" . $comparison . ">==|!=|<|>|<=|>=)[\s]*" . self::GetNegativePattern($rightNegative) . "(?:" . self::GetNumericalPattern($rightNumeric) . "|" . self::GetStringPattern($rightString) . "|" . self::GetVariablePattern($rightExpression, $rightModifier) . "))?";
+			$options = array_merge(
+				array(
+					"Logical" => "Logical",
+					"LeftNegative" => "LeftNegative",
+					"LeftBoolean" => "LeftBoolean",
+					"LeftNumeric" => "LeftNumeric",
+					"LeftString" => "LeftString",
+					"LeftExpression" => "LeftExpression",
+					"LeftModifier" => "LeftModifier",
+					"Comparison" => "Comparison",
+					"RightNegative" => "RightNegative",
+					"RightBoolean" => "RightBoolean",
+					"RightNumeric" => "RightNumeric",
+					"RightString" => "RightString",
+					"RightExpression" => "RightExpression",
+					"RightModifier" => "RightModifier"
+				),
+				$options
+			);
+
+			$leftPattern = self::GetValuePattern(
+				array(
+					"Negative" => $options["LeftNegative"],
+					"Boolean" => $options["LeftBoolean"],
+					"Numeric" => $options["LeftNumeric"],
+					"String" => $options["LeftString"],
+					"Expression" => $options["LeftExpression"],
+					"Modifier" => $options["LeftModifier"]
+				)
+			);
+
+			$rightPattern = self::GetValuePattern(
+				array(
+					"Negative" => $options["RightNegative"],
+					"Boolean" => $options["RightBoolean"],
+					"Numeric" => $options["RightNumeric"],
+					"String" => $options["RightString"],
+					"Expression" => $options["RightExpression"],
+					"Modifier" => $options["RightModifier"]
+				)
+			);
+
+			//die(var_dump($leftPattern));
+
+			//die(var_dump("[\s]*(?<" . $options["Logical"] . ">&&|\|\|)?[\s]*" . $leftPattern));
+
+			return "[\s]*(?<" . $options["Logical"] . ">&&|\|\|)?[\s]*" . $leftPattern . "(?:[\s]*(?<" . $options["Comparison"] . ">==|!=|<|>|<=|>=)[\s]*" . $rightPattern . ")?";
+		}
+
+		private static function GetValuePattern($options = array())
+		{
+			$options = array_merge(
+				array(
+					"Negative" => "Negative",
+					"Boolean" => "Boolean",
+					"Numeric" => "Numeric",
+					"String" => "String",
+					"Expression" => "Expression",
+					"Modifier" => "Modifier"
+				),
+				$options
+			);
+
+			return "(?:" . self::GetNegativePattern($options["Negative"]) . "(?:" . self::GetBooleanPattern($options["Boolean"]) . "|" . self::GetNumericalPattern($options["Numeric"]) . "|" . self::GetStringPattern($options["String"]) . "|" . self::GetVariablePattern($options["Expression"], $options["Modifier"]) . "))";
 		}
 
 		private static function GetExpressionPatterns()
@@ -75,8 +138,6 @@
 
 			$previousNode = null;
 
-			//die("<pre>" . print_r($tokens, true));
-
 			while(!empty($tokens))
 			{
 				$token = array_shift($tokens);
@@ -96,9 +157,14 @@
 						if(preg_match("/^" . self::GetNegativePattern() . self::GetVariablePattern() . "$/", $token->Data, $matches))
 						{
 							$expression = $matches["Expression"];
-							$modifier = @$matches["Modifier"];
+							$modifier = null;
 							
-							$isNegative = !empty(@$matches["Negative"]);
+							$isNegative = (isset($matches["Negative"]) && !empty($matches["Negative"]));
+
+							if(isset($matches["Modifier"]) && !empty($matches["Modifier"]))
+							{
+								$modifier = $matches["Modifier"];
+							}
 
 							$node = new VariableNode($expression, $modifier, $isNegative);
 						}
@@ -127,9 +193,19 @@
 						{
 							case ExpressionType::ET_FOR_EACH:
 								$key = $matches["Key"];
-								$value = @$matches["Value"];
+								$value = null;
 								$expression = $matches["Expression"];
-								$modifier = @$matches["Modifier"];
+								$modifier = null;
+
+								if(isset($matches["Value"]) && !empty($matches["Value"]))
+								{
+									$value = $matches["Value"];
+								}
+
+								if(isset($matches["Modifier"]) && !empty($matches["Modifier"]))
+								{
+									$modifier = $matches["Modifier"];
+								}
 
 								$array = new VariableNode($expression, $modifier);
 
@@ -144,9 +220,10 @@
 								$node = new ForEachNode($key, $value, $array, $children);
 							break;
 
+							case ExpressionType::ET_ELSE:
 							case ExpressionType::ET_ELSE_IF:
 							case ExpressionType::ET_IF:
-								if($expressionType == ExpressionType::ET_ELSE_IF)
+								if($expressionType == ExpressionType::ET_ELSE_IF || $expressionType == ExpressionType::ET_ELSE)
 								{
 									if($parentExpressionType == ExpressionType::ET_IF || $parentExpressionType == ExpressionType::ET_ELSE_IF)
 									{
@@ -156,41 +233,31 @@
 									}
 									else if(!($previousNode instanceof IfNode || $previousNode instanceof ElseIfNode))
 									{
-										throw new ParserException($token, "Unexpected token \"" . $token->Data . "\"", ParserException::CODE_UNEXPECTED_TOKEN);
+										throw new ParserException($token, "Unexpected token \"" . $token->Data . "\" on line " . $token->LineNumber, ParserException::CODE_UNEXPECTED_TOKEN);
 									}
 								}
 
-								$expression = $matches["Expression"];
-
-								$condition = self::Conditional($expression, $token);
-
 								$children = self::Parse($tokens, $expressionType);
 
-								if($expressionType == ExpressionType::ET_ELSE_IF)
+								if($expressionType == ExpressionType::ET_ELSE)
 								{
-									$node = new ElseIfNode($condition, $children);
+									$node = new ElseNode($children);
 								}
 								else
 								{
-									$node = new IfNode($condition, $children);
+									$expression = $matches["Expression"];
+	
+									$condition = self::Conditional($expression, $token);
+	
+									if($expressionType == ExpressionType::ET_ELSE_IF)
+									{
+										$node = new ElseIfNode($condition, $children);
+									}
+									else
+									{
+										$node = new IfNode($condition, $children);
+									}
 								}
-							break;
-
-							case ExpressionType::ET_ELSE:
-								if($parentExpressionType == ExpressionType::ET_IF || $parentExpressionType == ExpressionType::ET_ELSE_IF)
-								{
-									$state = (ParserState::END_OF_BRANCH | ParserState::PREPEND_TOKEN);
-
-									break;
-								}
-								else if(!($previousNode instanceof IfNode || $previousNode instanceof ElseIfNode))
-								{
-									throw new ParserException($token, "Unexpected token \"" . $token->Data . "\" on line " . $token->LineNumber, ParserException::CODE_UNEXPECTED_TOKEN);
-								}
-
-								$children = self::Parse($tokens, $expressionType);
-
-								$node = new ElseNode($children);
 							break;
 
 							case ExpressionType::ET_END_FOR_EACH:
@@ -266,42 +333,42 @@
 				
 				foreach($matches as $match)
 				{
-					$logical = @$match["Logical"];
-					$isLeftNegative = !empty(@$matches["LeftNegative"]);
-					$left = @$match["LeftNumeric"];
-					$comparison = @$match["Comparison"];
-					$isRightNegative = !empty(@$matches["RightNegative"]);
-					$right = @$match["RightNumeric"];
+					$logical = null;
+					$comparison = null;
 
-					if($left == null)
+					if(isset($match["Logical"]) && !empty($match["Logical"]))
 					{
-						$left = @$match["LeftString"];
-
-						if($left == null)
-						{
-							$left = new VariableNode($match["LeftExpression"], @$match["LeftModifier"], $isLeftNegative);
-						}
+						$logical = $match["Logical"];
 					}
 
-					if(!($left instanceof VariableNode))
+					if(isset($match["Comparison"]) && !empty($match["Comparison"]))
 					{
-						$left = new DataNode($left, $isLeftNegative);
+						$comparison = $match["Comparison"];
 					}
+					
+					$left = self::Value(
+						$match,
+						array(
+							"Negative" => "LeftNegative",
+							"Boolean" => "LeftBoolean",
+							"Numeric" => "LeftNumeric",
+							"String" => "LeftString",
+							"Expression" => "LeftExpression",
+							"Modifier" => "LeftModifier"
+						)
+					);
 
-					if($right == null)
-					{
-						$right = @$match["RightString"];
-
-						if($right == null)
-						{
-							$right = new VariableNode($match["RightExpression"], @$match["RightModifier"], $isRightNegative);
-						}
-					}
-
-					if(!($right instanceof VariableNode))
-					{
-						$right = new DataNode($right, $isRightNegative);
-					}
+					$right = self::Value(
+						$match,
+						array(
+							"Negative" => "RightNegative",
+							"Boolean" => "RightBoolean",
+							"Numeric" => "RightNumeric",
+							"String" => "RightString",
+							"Expression" => "RightExpression",
+							"Modifier" => "RightModifier"
+						)
+					);
 
 					$nodes[] = new ConditionalNode($logical, $left, $comparison, $right);
 				}
@@ -319,6 +386,53 @@
 			}
 
 			return $nodes;
+		}
+
+		// NOTE: Will probably clean this up at some point, probably remove it due to being a very specific function
+		private static function Value($matches, $options = array())
+		{
+			$options = array_merge(
+				array(
+					"Negative" => "Negative",
+					"Boolean" => "Boolean",
+					"Numeric" => "Numeric",
+					"String" => "String",
+					"Expression" => "Expression",
+					"Modifier" => "Modifier"
+				),
+				$options
+			);
+
+			$isNegative = (isset($matches[$options["Negative"]]) && !empty($matches[$options["Negative"]]));
+
+			if(isset($matches[$options["Boolean"]]) && !empty($matches[$options["Boolean"]]))
+			{
+				return new DataNode(filter_var($matches[$options["Boolean"]], FILTER_VALIDATE_BOOLEAN), $isNegative);
+			}
+
+			if(isset($matches[$options["Numeric"]]) && !empty($matches[$options["Numeric"]]))
+			{
+				return new DataNode((double)$matches[$options["Numeric"]], $isNegative);
+			}
+
+			if(isset($matches[$options["String"]]) && !empty($matches[$options["String"]]))
+			{
+				return new DataNode((string)$matches[$options["String"]], $isNegative);
+			}
+
+			if(isset($matches[$options["Expression"]]) && !empty($matches[$options["Expression"]]))
+			{
+				$modifier = null;
+
+				if(isset($matches[$options["Modifier"]]) && !empty($matches[$options["Modifier"]]))
+				{
+					$modifier = $matches[$options["Modifier"]];
+				}
+
+				return new VariableNode($matches[$options["Expression"]], $modifier, $isNegative);
+			}
+
+			return null;
 		}
 	}
 

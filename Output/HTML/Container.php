@@ -30,22 +30,9 @@
 		}
 
 		//public function AddElement(Element $element)
-		public function AddElement($element)
+		public function AddElement(Element $element)
 		{
-			switch(true)
-			{
-				case $element instanceof ScriptElement:
-					
-				break;
-
-				case $element instanceof StylesheetElement:
-
-				break;
-
-				case $element instanceof MetaElement:
-					
-				break;
-			}
+			$this->_elements[] = $element;
 		}
 
 		protected function GenerateHead()
