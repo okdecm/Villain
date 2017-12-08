@@ -3,7 +3,7 @@ A small PHP library used to help build any form of application.
 
 # How to use
 Simply extract Villain to any directory, and include the root file Villain.php.
-Villain.php will autoload any Villain classes you chose to use automatically.
+Villain.php will autoload any Villain classes you choose to use automatically.
 **Make sure to `use` the correct namespaces**
 
 # Routing
@@ -69,17 +69,19 @@ $userGrades = array(
 	"ADMIN" => 1
 );
 
-$template = new Template("./Templates/Top5Games.tpl");
+$template = new Template();
+$template->LoadFile("./Templates/Top5Games.tpl");
 
 $template->user_grades = $userGrades;
 
 $template->user = array(
+	"id" => 1,
 	"names" => array(
 		"username" => "Dec",
 		"first" => "Declan",
-		"surname" => "Murphy",
-		"grade" => $userGrades["ADMIN"]
-	)
+		"surname" => "Murphy"
+	),
+	"grade" => $userGrades["ADMIN"]
 );
 
 $template->games = array(
@@ -91,10 +93,16 @@ $template->games = array(
 		"score" => 100,
 		"kills" => array(
 			array(
-				"name" => "Abi"
+				"player" => array(
+					"id" => 2,
+					"name" => "Abi"
+				)
 			),
 			array(
-				"name" => "Zoe"
+				"player" => array(
+					"id" => 4,
+					"name" => "Zoe"
+				)
 			)
 		)
 	),
@@ -106,10 +114,16 @@ $template->games = array(
 		"score" => 100,
 		"kills" => array(
 			array(
-				"name" => "Dom"
+				"player" => array(
+					"id" => 5,
+					"name" => "Dom"
+				)
 			),
 			array(
-				"name" => "Dave"
+				"player" => array(
+					"id" => 3,
+					"name" => "Dave"
+				)
 			)
 		)
 	),
@@ -121,7 +135,10 @@ $template->games = array(
 		"score" => 30,
 		"kills" => array(
 			array(
-				"name" => "Erblin"
+				"player" => array(
+					"id" => 2,
+					"name" => "Erblin"
+				)
 			)
 		)
 	)
@@ -168,14 +185,14 @@ Top5Games.tpl (NOTE: `format_seconds` is a conceptual modifier and will throw an
 	<ul>
 		{% foreach id, game in games %}
 			<li>
-				<h2>Game #{{game.id}}</h2>
+				<h2>Game #{{id}}</h2>
 
-				{% game.is_time_based %}
+				{% if game.is_time_based %}
 					<p>&bullet; Total Time Spent in Objective: {{game.time_in_objective|format_seconds(i:s)}}</p>
 				{% else if game.is_score_based %}
 					<p>&bullet; Total Score: {{game.score}}</p>
 				{% else %}
-					<p>&bullet; Total Kills: {{game.kills}}</p>
+					<p>&bullet; Total Kills: {{game.kills|count}}</p>
 
 					<h3>Players Killed:</h3>
 
