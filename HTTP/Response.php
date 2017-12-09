@@ -4,7 +4,7 @@
 
 	class Response
 	{
-		public static function SetStatusCode($statusCode)
+		public static function SetStatusCode(int $statusCode)
 		{
 			http_response_code($statusCode);
 		}

@@ -14,7 +14,7 @@
 		public $IsAsynchronous = false;
 		public $IsDeferred = false;
 
-		public function __construct($source = "", $type = "", $charset = "", $isAsynchronous = false, $isDeferred = false)
+		public function __construct(string $source = "", string $type = "", string $charset = "", bool $isAsynchronous = false, bool $isDeferred = false)
 		{
 			parent::__construct("script");
 		}

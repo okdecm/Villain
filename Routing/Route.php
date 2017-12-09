@@ -12,7 +12,7 @@
 
 		private $_callbackParsers = array();
 
-		public function __construct($methods, $pattern, $callback)
+		public function __construct($methods, string $pattern, callable $callback)
 		{
 			if(!is_array($methods))
 			{
@@ -26,7 +26,7 @@
 			$this->_patternRegex = "/^" . preg_replace("/\\\{[^\}]+\\\}/", '([^\/]+)', preg_quote($this->TrimPath($this->_pattern), "/")) . "$/";
 		}
 
-		public function Execute($path)
+		public function Execute(string $path)
 		{
 			$args = array();
 
@@ -37,7 +37,7 @@
 			call_user_func_array($this->_callback, $args);
 		}
 
-		public function Matches($method, $path)
+		public function Matches(string $method, string $path)
 		{
 			if(!in_array($method, $this->_methods) && !in_array("any", $this->_methods))
 			{
@@ -47,7 +47,7 @@
 			return preg_match($this->_patternRegex, $this->TrimPath($path));
 		}
 
-		public function TrimPath($path)
+		public function TrimPath(string $path)
 		{
 			if($path[(strlen($path) - 1)] == '/')
 			{

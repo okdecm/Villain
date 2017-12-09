@@ -2,7 +2,7 @@
 
 	namespace Villain\Output\Templating\Nodes;
 
-	class ForEachNode
+	class ForEachNode extends Node
 	{
 		public $Key;
 		public $Value;
@@ -10,7 +10,7 @@
 
 		public $Children;
 
-		public function __construct($key, $value, $array, $children)
+		public function __construct(?string $key, string $value, VariableNode $array, array $children = array())
 		{
 			$this->Key = $key;
 			$this->Value = $value;

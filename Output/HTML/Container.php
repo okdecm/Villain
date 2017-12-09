@@ -21,7 +21,7 @@
 			parent::LoadFile(__DIR__ . "/Templates/Container.tpl");
 		}
 
-		public function AddElements($elements)
+		public function AddElements(array $elements)
 		{
 			foreach($elements as $element)
 			{
@@ -29,7 +29,6 @@
 			}
 		}
 
-		//public function AddElement(Element $element)
 		public function AddElement(Element $element)
 		{
 			$this->_elements[] = $element;

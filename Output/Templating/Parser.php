@@ -2,6 +2,9 @@
 
 	namespace Villain\Output\Templating;
 
+	// Base
+	use Villain\Output\Templating\Nodes\Node;
+
 	// Generic
 	use Villain\Output\Templating\Nodes\DataNode;
 	use Villain\Output\Templating\Nodes\VariableNode;
@@ -23,34 +26,34 @@
 	{
 		// NOTE: These pattern functions are quite ugly, but ah well
 
-		private static function GetNegativePattern($name = "Negative")
+		private static function GetNegativePattern(string $name = "Negative")
 		{
 			return "(?<" . $name . ">!*)";
 		}
 
-		private static function GetBooleanPattern($name = "Boolean")
+		private static function GetBooleanPattern(string $name = "Boolean")
 		{
 
 			return "(?<" . $name . ">true|false)";
 		}
 
-		private static function GetNumericalPattern($name = "Digit")
+		private static function GetNumericalPattern(string $name = "Digit")
 		{
 			return "(?<" . $name . ">[\d]+(?:\.[\d]+)*)";
 		}
 
-		private static function GetStringPattern($name = "String")
+		private static function GetStringPattern(string $name = "String")
 		{
 			return "\"(?<" . $name . ">.*)\"";
 		}
 
-		private static function GetVariablePattern($expression = "Expression", $modifier = "Modifier")
+		private static function GetVariablePattern(string $expression = "Expression", string $modifier = "Modifier")
 		{
 			return "(?<" . $expression . ">[\w]+(?:\[[\w]+\])?(?:\.+\w+(?:\[[\w]+\])?)*)(?:[\s]*\|[\s]*(?<" . $modifier . ">[\w]+))?";
 		}
 
 		// NOTE: Ugly args, but it'll do
-		private static function GetConditionalPattern($options = array())
+		private static function GetConditionalPattern(array $options = array())
 		{
 			$options = array_merge(
 				array(
@@ -101,7 +104,7 @@
 			return "[\s]*(?<" . $options["Logical"] . ">&&|\|\|)?[\s]*" . $leftPattern . "(?:[\s]*(?<" . $options["Comparison"] . ">==|!=|<|>|<=|>=)[\s]*" . $rightPattern . ")?";
 		}
 
-		private static function GetValuePattern($options = array())
+		private static function GetValuePattern(array $options = array())
 		{
 			$options = array_merge(
 				array(
@@ -130,7 +133,7 @@
 			);
 		}
 
-		public static function Parse(&$tokens, $parentExpressionType = null)
+		public static function Parse(array &$tokens, ?int $parentExpressionType = null)
 		{
 			$nodes = array();
 
@@ -320,7 +323,7 @@
 			return $nodes;
 		}
 
-		private static function Conditional($expression, $token = null)
+		private static function Conditional(string $expression, ?Token $token = null)
 		{
 			$nodes = array();
 
@@ -389,7 +392,7 @@
 		}
 
 		// NOTE: Will probably clean this up at some point, probably remove it due to being a very specific function
-		private static function Value($matches, $options = array())
+		private static function Value(array $matches, array $options = array())
 		{
 			$options = array_merge(
 				array(

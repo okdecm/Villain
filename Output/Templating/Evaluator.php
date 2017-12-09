@@ -2,6 +2,11 @@
 
 	namespace Villain\Output\Templating;
 
+	use Villain\Data\StringEx;
+
+	// Base
+	use Villain\Output\Templating\Nodes\Node;
+
 	// Generic
 	use Villain\Output\Templating\Nodes\DataNode;
 	use Villain\Output\Templating\Nodes\VariableNode;
@@ -21,24 +26,26 @@
 
 	class Evaluator
 	{
-		public static function Evaluate($nodes, $context = array())
+		public static function Evaluate(array $nodes, array $context = array())
 		{
-			// TODO: Fix the if true if false stuff in the container template, doesn't display an error
-			//die("<pre>" . print_r($nodes, true));
-
 			$data = "";
 
 			$conditionMet = false;
 
 			foreach($nodes as $node)
 			{
-				$data .= self::EvaluateSingular($node, $context, $conditionMet);
+				$nodeData = self::EvaluateSingular($node, $context, $conditionMet);
+
+				if(StringEx::CanCastToString($nodeData))
+				{
+					$data .= (string)$nodeData;
+				}
 			}
 
 			return $data;
 		}
 
-		public static function EvaluateSingular($node, $context = array(), &$conditionMet = false)
+		public static function EvaluateSingular(Node $node, array $context = array(), bool &$conditionMet = false)
 		{
 			$data = "";
 
@@ -227,9 +234,6 @@
 							break;
 						}
 					}
-
-					//die(var_dump($node));
-					//die(var_dump($left, $right, $value));
 
 					if($value)
 					{

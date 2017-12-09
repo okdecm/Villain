@@ -13,7 +13,7 @@
 
 		// NOTE: Could just use an interface- however this isn't nessecary for now
 		// NOTE: This injection is useful as the Lexer has an $options property which determines the tags used
-		public function __construct($content = "", Lexer $lexer = null, Parser $parser = null, Evaluator $evaluator = null)
+		public function __construct(string $content = "", ?Lexer $lexer = null, ?Parser $parser = null, ?Evaluator $evaluator = null)
 		{
 			$this->_content = $content;
 
@@ -22,7 +22,7 @@
 			$this->SetEvaluator($evaluator);
 		}
 
-		public function __get($name)
+		public function __get(string $name)
 		{
 			if(isset($this->_data[$name]))
 			{
@@ -32,22 +32,22 @@
 			return null;
 		}
 
-		public function __set($name, $value)
+		public function __set(string $name, $value)
 		{
 			$this->_data[$name] = $value;
 		}
 
-		public function __isset($name)
+		public function __isset(string $name)
 		{
 			return isset($this->_data[$name]);
 		}
 
-		public function __unset($name)
+		public function __unset(string $name)
 		{
 			unset($this->_data[$name]);
 		}
 
-		public function SetLexer(Lexer $lexer = null)
+		public function SetLexer(?Lexer $lexer = null)
 		{
 			$this->_lexer = $lexer;
 
@@ -57,7 +57,7 @@
 			}
 		}
 
-		public function SetParser(Parser $parser = null)
+		public function SetParser(?Parser $parser = null)
 		{
 			$this->_parser = $parser;
 
@@ -67,7 +67,7 @@
 			}
 		}
 
-		public function SetEvaluator(Evaluator $evaluator = null)
+		public function SetEvaluator(?Evaluator $evaluator = null)
 		{
 			$this->_evaluator = $evaluator;
 
@@ -77,7 +77,7 @@
 			}
 		}
 
-		public function LoadFile($filePath = null)
+		public function LoadFile(string $filePath)
 		{
 			// NOTE: Let the caller handle the exception
 			//if(is_string($filePath) && file_exists($filePath) && is_file($filePath))
@@ -86,7 +86,7 @@
 			//}
 		}
 
-		public function AppendData($data)
+		public function AppendData(array $data)
 		{
 			$this->_data = array_merge(
 				$this->_data,

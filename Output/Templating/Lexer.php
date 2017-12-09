@@ -4,7 +4,7 @@
 
 	class Lexer
 	{
-		public static function Lex($data, array $options = array())
+		public static function Lex(string $data, array $options = array())
 		{
 			$options = array_merge(
 				array(

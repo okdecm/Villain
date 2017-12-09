@@ -6,7 +6,7 @@
 	{
 		private static $_routes = array();
 
-		public static function Route($method, $path)
+		public static function Route(string $method, string $path)
 		{
 			$routes = array_filter(
 				self::$_routes,
@@ -26,45 +26,38 @@
 			}
 		}
 
-		public static function Delete($pattern, $callback, $isRegex = false)
+		public static function Delete(string $pattern, callable $callback, bool $isRegex = false)
 		{
 			self::Add("delete", $pattern, $callback, $isRegex);
 		}
 
-		public static function Get($pattern, $callback, $isRegex = false)
+		public static function Get(string $pattern, callable $callback, bool $isRegex = false)
 		{
 			self::Add("get", $pattern, $callback, $isRegex);
 		}
 
-		public static function Patch($pattern, $callback, $isRegex = false)
+		public static function Patch(string $pattern, callable $callback, bool $isRegex = false)
 		{
 			self::Add("patch", $pattern, $callback, $isRegex);
 		}
 
-		public static function Post($pattern, $callback, $isRegex = false)
+		public static function Post(string $pattern, callable $callback, bool $isRegex = false)
 		{
 			self::Add("post", $pattern, $callback, $isRegex);
 		}
 
-		public static function Put($pattern, $callback, $isRegex = false)
+		public static function Put(string $pattern, callable $callback, bool $isRegex = false)
 		{
 			self::Add("put", $pattern, $callback, $isRegex);
 		}
 
-		public static function Any($pattern, $callback, $isRegex = false)
+		public static function Any(string $pattern, callable $callback, bool $isRegex = false)
 		{
 			self::Add("any", $pattern, $callback, $isRegex);
 		}
 
-		public static function Add($methods, $pattern, $callback, $isRegex = false)
+		public static function Add($methods, string $pattern, callable $callback, bool $isRegex = false)
 		{
-			$callback = self::ParseCallback($callback);
-
-			if($callback == null)
-			{
-				throw new Exception("Failed to parse callback");
-			}
-
 			$route = new Route($methods, $pattern, $callback, $isRegex);
 			
 			self::AddRoute($route);
@@ -72,23 +65,9 @@
 			return $route;
 		}
 
-		public static function AddRoute($route)
+		public static function AddRoute(Route $route)
 		{
 			array_push(self::$_routes, $route);
-		}
-
-		public static function ParseCallback($callback)
-		{
-			if(is_callable($callback))
-			{
-				return $callback;
-			}
-			else if(is_array($callback) && count($callback) == 2)
-			{
-				return $callback;
-			}
-
-			return null;
 		}
 	}
 

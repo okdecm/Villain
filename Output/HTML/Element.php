@@ -13,7 +13,7 @@
 
 		protected $_attributes = array();
 
-		public function __construct($name, $content = "", $isSelfClosing = false)
+		public function __construct(string $name, string $content = "", bool $isSelfClosing = false)
 		{
 			$this->_name = $name;
 
@@ -25,7 +25,7 @@
 			parent::LoadFile(__DIR__ . "/Templates/Element.tpl");
 		}
 
-		public function AddAttributes($attributes)
+		public function AddAttributes(array $attributes)
 		{
 			foreach($attributes as $attribute)
 			{
@@ -33,7 +33,6 @@
 			}
 		}
 
-		//public function AddAttribute(Attribute $attribute)
 		public function AddAttribute(Attribute $attribute)
 		{
 			$this->_attributes[] = $attribute;

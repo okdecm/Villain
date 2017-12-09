@@ -4,7 +4,7 @@
 
 	class ArrayEx
 	{
-		public static function Merge($defaults, $array, $removeUnknownKeys = false)
+		public static function Merge(array $defaults, array $array, bool $removeUnknownKeys = false)
 		{
 			if($removeUnknownKeys)
 			{

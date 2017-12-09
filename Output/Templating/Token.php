@@ -8,7 +8,7 @@
 		public $Data;
 		public $LineNumber;
 
-		public function __construct($type, $data, $lineNumber)
+		public function __construct(int $type, string $data, int $lineNumber)
 		{
 			$this->Type = $type;
 			$this->Data = $data;

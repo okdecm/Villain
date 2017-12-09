@@ -2,7 +2,7 @@
 
 	namespace Villain\Output\Templating\Nodes;
 
-	class EndForEachNode
+	class EndForEachNode extends Node
 	{
 		
 	}

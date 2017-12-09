@@ -9,7 +9,7 @@
 		public $Key;
 		public $Value;
 
-		public function __construct($key = "", $value = "")
+		public function __construct(string $key, string $value = "")
 		{
 			$this->Key = $key;
 			$this->Value = $value;

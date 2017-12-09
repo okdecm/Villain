@@ -2,13 +2,13 @@
 
 	namespace Villain\Output\Templating\Nodes;
 
-	class VariableNode
+	class VariableNode extends Node
 	{
 		public $IsNegative; 
 		public $Expression;
 		public $Modifier;
 
-		public function __construct($expression, $modifier = null, $isNegative = false)
+		public function __construct(string $expression, ?string $modifier = null, bool $isNegative = false)
 		{
 			$this->IsNegative = $isNegative;
 			$this->Expression = $expression;

@@ -10,7 +10,7 @@
 		const CODE_UNKNOWN_EXPRESSION = 2;
 		const CODE_UNEXPECTED_TOKEN = 3;
 
-		public function __construct($token, $message, $code = 0, \Exception $previous = null)
+		public function __construct(Token $token, string $message, int $code = 0, \Exception $previous = null)
 		{
 			$this->Token = $token;
 
